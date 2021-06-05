@@ -113,10 +113,15 @@ player = Player()
 #将飞机加入到精灵组中
 all_sprites.add(player)
 
+#为了AABB碰撞检测，需要将怪物单独放到一个精灵组中
+all_mobs = pygame.sprite.Group()
+
+
 #产生10个怪物精灵,并加入精灵组中
 for i in range(10):
     m = Mob()
     all_sprites.add(m)
+    all_mobs.add(m)
     
 running = True
 
@@ -129,6 +134,12 @@ while running:
     #更新所有的飞机和怪物的位置
     all_sprites.update()
     
+    #AABB碰撞检测， 最后一个参数如果是True表示碰撞后，怪物将消失
+    hits = pygame.sprite.spritecollide(player, all_mobs, False)
+    if hits:
+        running = False
+        continue
+        
     #绘制背景
     screen.fill(BLACK)   
     
