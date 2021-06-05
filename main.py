@@ -1,5 +1,12 @@
 import pygame
 import random
+import os
+
+#获取游戏目录， 也就是本文件所在的目录
+game_folder = os.path.dirname(__file__)
+
+#获取游戏的资源目录，里面存在着图片，音频等资源
+res_folder = os.path.join(game_folder, "resources")
 
 #显示界面的宽度，高度和刷新率
 WIDTH = 360
@@ -18,6 +25,8 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 #设置显示界面的标题
 pygame.display.set_caption("My Game")
 
+
+
 #创建游戏时钟
 clock = pygame.time.Clock()
 
@@ -32,12 +41,16 @@ GREEN = (0,255,0)
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        #为游戏精灵指定一个图像对象，并设置大小
-        self.image = pygame.Surface((50, 50))
-        #填充颜色
-        self.image.fill(GREEN)
+
+        #为游戏精灵设置图像
+        player_img = pygame.image.load(os.path.join(res_folder, "plane1.png")).convert()
+        
+        #设置飞机的尺寸（原图片可能过大）
+        self.image = pygame.transform.scale(player_img,(50,50))
+
         #设置精灵的外观尺寸，也就是图片的尺寸
         self.rect = self.image.get_rect()
+
         #设置精灵的中心位置，也就是显示屏幕的中心
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
      
