@@ -77,6 +77,13 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = WIDTH
         if self.rect.left < 0:
             self.rect.left = 0
+
+     #发射子弹       
+    def shoot(self):
+        #新生一枚子弹， 在飞机的头部
+        bullet = Bullet(self.rect.centerx, self.rect.top)
+        all_sprites.add(bullet)
+        all_bullets.add(bullet)
     
 #定义一个游戏精灵类-怪物
 class Mob(pygame.sprite.Sprite):
@@ -103,6 +110,28 @@ class Mob(pygame.sprite.Sprite):
             self.rect.y = random.randrange(-100,-40)
             self.speedy = random.randrange(1, 8)
     
+#定义一个游戏精灵类-子弹
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y): #创建子弹对象是需要指定起始坐标， 其实就是飞机的坐标
+        pygame.sprite.Sprite.__init__(self)
+        
+        #子弹图片设置
+        butllet_img = pygame.image.load(os.path.join(res_folder, "bullet1.png")).convert_alpha()
+        self.image = pygame.transform.scale(butllet_img,(10,20))
+        self.rect = self.image.get_rect()
+        self.rect.bottom = y
+        self.rect.centerx = x
+        
+        #子弹总是向上飞
+        self.speedy = -10
+
+    def update(self):
+        self.rect.y += self.speedy
+  
+        #如果一个子弹飞出了屏幕， 它就会消失
+        if self.rect.bottom < 0:
+            self.kill()
+
 
 #创建一个精灵组，所有的精灵（飞机和怪物）都加入到这个组统一管理（统一更新和绘制， update/draw）
 all_sprites = pygame.sprite.Group()
@@ -115,6 +144,9 @@ all_sprites.add(player)
 
 #为了AABB碰撞检测，需要将怪物单独放到一个精灵组中
 all_mobs = pygame.sprite.Group()
+
+#创建一个子弹精灵组
+all_bullets = pygame.sprite.Group()
 
 
 #产生10个怪物精灵,并加入精灵组中
@@ -130,16 +162,29 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running=False
-    
+        #用户按空格键时，发射子弹
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.shoot()
+        
     #更新所有的飞机和怪物的位置
     all_sprites.update()
     
-    #AABB碰撞检测， 最后一个参数如果是True表示碰撞后，怪物将消失
+    #AABB碰撞检测，检测飞机是否与怪物碰撞，是1对多， 最后一个参数如果是True表示碰撞后，怪物将消失
     hits = pygame.sprite.spritecollide(player, all_mobs, False)
     if hits:
         running = False
         continue
-        
+    
+    #AABB碰撞检测，检测子弹是否与怪物碰撞， 是多对多， 所用groupcollide，True， True 表示碰撞后子弹和怪物都消失
+    hits = pygame.sprite.groupcollide(all_bullets, all_mobs, True, True)
+    if hits:
+        #为了保持怪物的数量， 碰撞后， 需要加入新的怪物
+        m = Mob()
+        all_sprites.add(m)
+        all_mobs.add(m)
+    
+    
     #绘制背景
     screen.fill(BLACK)   
     
