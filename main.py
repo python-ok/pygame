@@ -9,9 +9,11 @@ game_folder = os.path.dirname(__file__)
 res_folder = os.path.join(game_folder, "resources")
 
 #显示界面的宽度，高度和刷新率
-WIDTH = 360
-HEIGHT = 480
-FPS = 30
+WIDTH = 480
+HEIGHT = 600
+
+#较高的FPS会使物体移动的更加平滑
+FPS = 60
 
 #初始化pygame
 pygame.init()
@@ -37,28 +39,44 @@ BLUE = (0,0,255)
 RED = (255,0,0)
 GREEN = (0,255,0)
 
-#定义一个游戏精灵类
+#定义一个游戏精灵类-飞机
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        #为游戏精灵设置图像
+        #加载飞机图片
         player_img = pygame.image.load(os.path.join(res_folder, "plane1.png")).convert()
         
-        #设置飞机的尺寸（原图片可能过大）
+        #设置图片的尺寸（原图片可能过大）
         self.image = pygame.transform.scale(player_img,(50,50))
 
-        #设置精灵的外观尺寸，也就是图片的尺寸
+        #设置飞机的外观尺寸，也就是图片的尺寸
         self.rect = self.image.get_rect()
 
-        #设置精灵的中心位置，也就是显示屏幕的中心
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        #设置飞机的位置， 底部中心
+        self.rect.centerx = WIDTH / 2
+        self.rect.bottom = HEIGHT - 10
+        
+        #设置初始速度为0，speedx表示横向的移动速度， 后面我们会增加纵向的移动
+        self.speedx = 0
      
     #当该精灵加入pygame.sprite.Group中后， 每次group的update会调用各个精灵的update函数
     def update(self):
-        self.rect.x += 5
-        if self.rect.x >= WIDTH:
-            self.rect.x = 0
+        self.speedx = 0
+        #根据按键操作飞机的左右移动
+        keystate = pygame.key.get_pressed()
+        if keystate[pygame.K_LEFT]:
+            self.speedx += -8
+        if keystate[pygame.K_RIGHT]:
+            self.speedx += +8
+            
+        self.rect.x += self.speedx
+        
+        #确保飞机始终在屏幕显示范围内， 注意rect.x, rect.y, rect.left, rect.right, rect.bottom, rect.top, rect.centerx等
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        if self.rect.left < 0:
+            self.rect.left = 0
     
 
 #创建一个精灵组对象， 游戏中所有的精灵都将加入到这个组中， 统一管理
