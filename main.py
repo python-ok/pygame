@@ -45,7 +45,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         #加载飞机图片
-        player_img = pygame.image.load(os.path.join(res_folder, "plane1.png")).convert()
+        player_img = pygame.image.load(os.path.join(res_folder, "plane1.png")).convert_alpha()
         
         #设置图片的尺寸（原图片可能过大）
         self.image = pygame.transform.scale(player_img,(50,50))
@@ -78,16 +78,46 @@ class Player(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
     
+#定义一个游戏精灵类-怪物
+class Mob(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        
+        #怪物图片设置
+        Mod_img = pygame.image.load(os.path.join(res_folder, "stone1.png")).convert_alpha()
+        self.image = pygame.transform.scale(Mod_img,(50,50))
+        self.rect = self.image.get_rect()
 
-#创建一个精灵组对象， 游戏中所有的精灵都将加入到这个组中， 统一管理
+        #每个怪物精灵初始位置和向下的速度都是随机的
+        self.rect.x = random.randrange(WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100,-40)
+        self.speedy = random.randrange(1, 8)
+     
+    def update(self):
+        #怪物始终是向下坠落的
+        self.rect.y += self.speedy
+        
+        #如果一个怪物坠落出了屏幕， 则重置它的位置和速度（重生了！）
+        if self.rect.top > HEIGHT+10:
+            self.rect.x = random.randrange(WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100,-40)
+            self.speedy = random.randrange(1, 8)
+    
+
+#创建一个精灵组，所有的精灵（飞机和怪物）都加入到这个组统一管理（统一更新和绘制， update/draw）
 all_sprites = pygame.sprite.Group()
 
-#创建一个精灵对象
+#创建一个飞机精灵对象
 player = Player()
 
-#将精灵对象加入到精灵组中
+#将飞机加入到精灵组中
 all_sprites.add(player)
 
+#产生10个怪物精灵,并加入精灵组中
+for i in range(10):
+    m = Mob()
+    all_sprites.add(m)
+    
 running = True
 
 #游戏的主循环，每一帧按照是否退出->更新->绘制->反转显示的流程重复进行
@@ -96,13 +126,13 @@ while running:
         if event.type == pygame.QUIT:
             running=False
     
-    #跟新所有的游戏精灵
+    #更新所有的飞机和怪物的位置
     all_sprites.update()
     
     #绘制背景
     screen.fill(BLACK)   
     
-    #绘制所有的精灵
+    #绘制所有的飞机和怪物
     all_sprites.draw(screen)
     
     #画面显示
