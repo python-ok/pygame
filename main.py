@@ -157,6 +157,10 @@ for i in range(10):
     
 running = True
 
+#加载背景图片, convert_alpha不同与convert
+bg_img = pygame.image.load(os.path.join(res_folder, "bg2.jpg")).convert()
+bg_rect = bg_img.get_rect()
+
 #游戏的主循环，每一帧按照是否退出->更新->绘制->反转显示的流程重复进行
 while running:
     for event in pygame.event.get():
@@ -187,6 +191,7 @@ while running:
     
     #绘制背景
     screen.fill(BLACK)   
+    screen.blit(bg_img, bg_rect)
     
     #绘制所有的飞机和怪物
     all_sprites.draw(screen)
