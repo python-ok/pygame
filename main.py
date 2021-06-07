@@ -52,6 +52,12 @@ class Player(pygame.sprite.Sprite):
 
         #设置飞机的外观尺寸，也就是图片的尺寸
         self.rect = self.image.get_rect()
+        
+        #设置圆形检测半径（Circle Bounding Box）,为宽度的1/2,可以根据实际是情况调整半径大小
+        self.radius = int(self.rect.width/2) 
+        #在图片上画一个红色的圆，表示他的碰撞边缘， 只是为了展示圆形区域检测， 没有实际作用，所有正式运行时需要注释掉
+        #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
+        
 
         #设置飞机的位置， 底部中心
         self.rect.centerx = WIDTH / 2
@@ -95,6 +101,13 @@ class Mob(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(Mod_img,(50,50))
         self.rect = self.image.get_rect()
 
+
+        #设置圆形检测半径（Circle Bounding Box）,为宽度的1/2,可以根据实际是情况调整半径大小
+        self.radius = int(self.rect.width/2) 
+        #在图片上画一个红色的圆，表示他的碰撞边缘， 只是为了展示圆形区域检测， 没有实际作用，所有正式运行时需要注释掉
+        #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
+        
+        
         #每个怪物精灵初始位置和向下的速度都是随机的
         self.rect.x = random.randrange(WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100,-40)
@@ -175,7 +188,9 @@ while running:
     all_sprites.update()
     
     #AABB碰撞检测，检测飞机是否与怪物碰撞，是1对多， 最后一个参数如果是True表示碰撞后，怪物将消失
-    hits = pygame.sprite.spritecollide(player, all_mobs, False)
+    #hits = pygame.sprite.spritecollide(player, all_mobs, False)
+    #CBB圆形检测
+    hits = pygame.sprite.spritecollide(player, all_mobs, False, pygame.sprite.collide_circle)
     if hits:
         running = False
         continue
