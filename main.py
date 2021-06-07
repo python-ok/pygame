@@ -91,16 +91,27 @@ class Player(pygame.sprite.Sprite):
         all_sprites.add(bullet)
         all_bullets.add(bullet)
     
-#定义一个游戏精灵类-怪物
+#定义一个游戏精灵类-shi
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
         #怪物图片设置
-        Mod_img = pygame.image.load(os.path.join(res_folder, "stone1.png")).convert_alpha()
-        self.image = pygame.transform.scale(Mod_img,(50,50))
+        #随机使用一个图片
+        Mod_img = random.choice(stone_img_group)
+        #随机设置大小
+        size=random.randrange(30,60)
+        self.org_image = pygame.transform.scale(Mod_img,(size,size))
+        #self.org_image.set_colorkey(BLACK)
+        #记录初始图片， 每次旋转都是用初始图片， 否则图片会模糊
+        self.image = self.org_image.copy()
         self.rect = self.image.get_rect()
-
+        
+        #rot 和 rot_speed控制怪物下坠时，不断的旋转（翻滚）        
+        self.rot = 0
+        self.rot_speed = random.randrange(-8, 8)
+        #为了更精准的进行帧内动画控制
+        self.last_update = pygame.time.get_ticks()
 
         #设置圆形检测半径（Circle Bounding Box）,为宽度的1/2,可以根据实际是情况调整半径大小
         self.radius = int(self.rect.width/2) 
@@ -111,11 +122,29 @@ class Mob(pygame.sprite.Sprite):
         #每个怪物精灵初始位置和向下的速度都是随机的
         self.rect.x = random.randrange(WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100,-40)
-        self.speedy = random.randrange(1, 8)
+        self.speedy = random.randrange(2, 5)
+        #增加一个水平移动的随机速度
+        self.speedx = random.randrange(-3, 3)
      
+    
+    def rotate(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 100:
+            self.last_update = now
+            self.rot = (self.rot + self.rot_speed) % 360
+            self.image = pygame.transform.rotate(self.org_image, self.rot)
+            old_center = self.rect.center
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
+            
+            
     def update(self):
+    
+        self.rotate()
         #怪物始终是向下坠落的
         self.rect.y += self.speedy
+        #怪物在下坠的同时， 会进行水平方向移动
+        self.rect.x += self.speedx
         
         #如果一个怪物坠落出了屏幕， 则重置它的位置和速度（重生了！）
         if self.rect.top > HEIGHT+10:
@@ -161,6 +190,15 @@ all_mobs = pygame.sprite.Group()
 #创建一个子弹精灵组
 all_bullets = pygame.sprite.Group()
 
+#加载不同的怪物图片
+stone_img_group = []
+stone_img_group.append(pygame.image.load(os.path.join(res_folder, "stone1.png")).convert_alpha())
+stone_img_group.append(pygame.image.load(os.path.join(res_folder, "stone2.png")).convert_alpha())
+stone_img_group.append(pygame.image.load(os.path.join(res_folder, "stone3.png")).convert_alpha())
+stone_img_group.append(pygame.image.load(os.path.join(res_folder, "stone4.png")).convert_alpha())
+stone_img_group.append(pygame.image.load(os.path.join(res_folder, "stone5.png")).convert_alpha())
+
+
 
 #产生10个怪物精灵,并加入精灵组中
 for i in range(10):
@@ -171,7 +209,7 @@ for i in range(10):
 running = True
 
 #加载背景图片, convert_alpha不同与convert
-bg_img = pygame.image.load(os.path.join(res_folder, "bg2.jpg")).convert()
+bg_img = pygame.image.load(os.path.join(res_folder, "bg4.jpg")).convert()
 bg_rect = bg_img.get_rect()
 
 #游戏的主循环，每一帧按照是否退出->更新->绘制->反转显示的流程重复进行
