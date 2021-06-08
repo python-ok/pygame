@@ -174,6 +174,14 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+font_name = pygame.font.match_font("arial")
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surf = font.render(text, True, WHITE)
+    text_rect = text_surf.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surf, text_rect)
+    
 
 #创建一个精灵组，所有的精灵（飞机和怪物）都加入到这个组统一管理（统一更新和绘制， update/draw）
 all_sprites = pygame.sprite.Group()
@@ -206,6 +214,7 @@ for i in range(10):
     all_sprites.add(m)
     all_mobs.add(m)
     
+score = 0
 running = True
 
 #加载背景图片, convert_alpha不同与convert
@@ -234,9 +243,10 @@ while running:
         continue
     
     #AABB碰撞检测，检测子弹是否与怪物碰撞， 是多对多， 所用groupcollide，True， True 表示碰撞后子弹和怪物都消失
-    hits = pygame.sprite.groupcollide(all_bullets, all_mobs, True, True)
-    if hits:
+    hits = pygame.sprite.groupcollide(all_mobs, all_bullets, True, True)
+    for hit in hits:
         #为了保持怪物的数量， 碰撞后， 需要加入新的怪物
+        score += 70 - hit.radius
         m = Mob()
         all_sprites.add(m)
         all_mobs.add(m)
@@ -249,6 +259,7 @@ while running:
     #绘制所有的飞机和怪物
     all_sprites.draw(screen)
     
+    draw_text(screen, str(score), 18, WIDTH / 2, 10)
     #画面显示
     pygame.display.flip()
     
