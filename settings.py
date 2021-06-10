@@ -41,6 +41,10 @@ BULLETE_IMG = ['bullet1.png','bullet2.png','bullet3.png']
 BG_IMG = ['bg1.jpg','bg2.jpg','bg3.jpg','bg4.jpg']
 STONE_IMG = ['stone1.png','stone2.png','stone3.png','stone4.png','stone5.png']
 
+#声音和音乐
+EXP_SOUND = ['exp.wav'] 
+BG_MUSIC = ['game.wav'] 
+SHOOT_SOUND = ['shoot1.wav', 'shoot2.wav']
 
 PLANE_SIZE_W = 70
 PLANE_SIZE_H = 40

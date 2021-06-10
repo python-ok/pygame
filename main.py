@@ -21,7 +21,12 @@ class Game():
         self.bg_img_group = []
         self.bullet_img_group = []
         self.plane_img_group = []
+        self.shoot_sound = []
+        self.bg_music = []
+        self.exp_sound = []
+        
         self.load_data()
+        
         self.all_sprites_group = 0
         self.all_mobs_group  = 0
         self.all_bulletes_group  = 0
@@ -58,6 +63,20 @@ class Game():
 
         for i in PLANE_IMG:
             self.plane_img_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+            
+        #加载声音    
+        for i in SHOOT_SOUND:
+            self.shoot_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
+
+        for i in EXP_SOUND:
+            self.exp_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
+            
+        #加载背景音乐   
+        for i in BG_MUSIC:
+            self.bg_music.append(pygame.mixer.music.load(os.path.join(res_folder, i)))
+            
+            
+         
         
     def draw_text(self, surf, text, size, x, y):
         font = pygame.font.Font(self.font_name, size)
@@ -91,6 +110,7 @@ class Game():
         hits = pygame.sprite.groupcollide(self.all_mobs_group, self.all_bulletes_group, True, True)
         for hit in hits:
             self.score += 70 - hit.radius
+            self.exp_sound[0].play()
             m = Mob(self)
             self.all_sprites_group.add(m)
             self.all_mobs_group.add(m)
@@ -110,6 +130,7 @@ class Game():
     def run(self):
     
         self.running = True
+        pygame.mixer.music.play(loops = -1)
         
         while self.running:
             self.clock.tick(FPS)

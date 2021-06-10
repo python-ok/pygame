@@ -48,6 +48,9 @@ class Plane(pygame.sprite.Sprite):
         bullet = Bullet(self.rect.centerx, self.rect.top, self.game_handle)
         self.game_handle.all_sprites_group.add(bullet)
         self.game_handle.all_bulletes_group.add(bullet)
+        
+        #播放音效
+        self.game_handle.shoot_sound[0].play()
     
 
 class Mob(pygame.sprite.Sprite):
@@ -68,9 +71,8 @@ class Mob(pygame.sprite.Sprite):
 
         self.last_update = pygame.time.get_ticks()
 
-        #设置圆形检测半径（Circle Bounding Box）,为宽度的1/2,可以根据实际是情况调整半径大小
+        
         self.radius = int(self.rect.width/2) 
-        #在图片上画一个红色的圆，表示他的碰撞边缘， 只是为了展示圆形区域检测， 没有实际作用，所有正式运行时需要注释掉
         #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         
         self.rect.x = random.randrange(WIDTH - self.rect.width)
