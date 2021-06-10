@@ -43,12 +43,9 @@ class Game():
         
         
         self.plane = Plane(self)
-        self.all_sprites_group.add(self.plane)
         
         for i in range(MOB_COUNT):
             m = Mob(self)
-            self.all_sprites_group.add(m)
-            self.all_mobs_group.add(m)
     
     def load_data(self):
     
@@ -64,14 +61,14 @@ class Game():
         for i in PLANE_IMG:
             self.plane_img_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
             
-        #加载声音    
+        
         for i in SHOOT_SOUND:
             self.shoot_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
 
         for i in EXP_SOUND:
             self.exp_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
             
-        #加载背景音乐   
+        
         for i in BG_MUSIC:
             self.bg_music.append(pygame.mixer.music.load(os.path.join(res_folder, i)))
             
@@ -103,30 +100,44 @@ class Game():
     def update(self):
         self.all_sprites_group.update()
     
-        hits = pygame.sprite.spritecollide(self.plane, self.all_mobs_group, False, pygame.sprite.collide_circle)
-        if hits:
-            self.quit()
+        hits = pygame.sprite.spritecollide(self.plane, self.all_mobs_group, True, pygame.sprite.collide_circle)
+        for hit in hits:
+            #增加铠甲, 每次碰撞发生后，MOB需要消失(spritecollide 中设置True)，否则会持续产生碰撞，为了保证Mob的数量， 需要重新生成一个
+           
+            self.plane.shield -= hit.radius
+            if self.plane.shield < 0:                   
+                self.quit()
+                
+                
+            Mob(self)
 
         hits = pygame.sprite.groupcollide(self.all_mobs_group, self.all_bulletes_group, True, True)
         for hit in hits:
-            self.score += 70 - hit.radius
+            self.score += MOB_RADIUS_SIZE_MAX * 2 - hit.radius
             self.exp_sound[0].play()
             m = Mob(self)
-            self.all_sprites_group.add(m)
-            self.all_mobs_group.add(m)
     
+    
+    def draw_shield_bar(self, x, y, blood):
+        if blood < 0:
+            blood = 0
+        fill = (blood / PLANE_SHIELD) * BAR_LENGTH
+        outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+        pygame.draw.rect(self.screen, BAR_FILL_COLOR, fill_rect)
+        pygame.draw.rect(self.screen, BAR_OUTLINE_COLOR, outline_rect, BAR_OUTLINE_WIDTH)
+        
     def draw(self):
        
         self.screen.blit(self.bg_img, self.bg_rect)
-
-
+        
         self.all_sprites_group.draw(self.screen)
 
         self.draw_text(self.screen, str(self.score), FONT_SIZE, FONT_POS_X, FONT_POS_Y)
+        self.draw_shield_bar(BAR_POS_X, BAR_POS_Y, self.plane.shield)
 
         pygame.display.flip()
-    
-
+        
     def run(self):
     
         self.running = True
@@ -137,6 +148,7 @@ class Game():
             self.events()
             self.update()
             self.draw()
+            
 
     
 if __name__ == '__main__':

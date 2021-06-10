@@ -23,7 +23,9 @@ class Plane(pygame.sprite.Sprite):
         self.rect.bottom = HEIGHT - 10
             
         self.speedx = 0
-     
+        self.shield = PLANE_SHIELD
+        
+        game.all_sprites_group.add(self)
     
     def update(self):
     
@@ -46,10 +48,9 @@ class Plane(pygame.sprite.Sprite):
     
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top, self.game_handle)
-        self.game_handle.all_sprites_group.add(bullet)
-        self.game_handle.all_bulletes_group.add(bullet)
-        
-        #播放音效
+       # self.game_handle.all_sprites_group.add(bullet)
+       # self.game_handle.all_bulletes_group.add(bullet)
+                
         self.game_handle.shoot_sound[0].play()
     
 
@@ -80,6 +81,11 @@ class Mob(pygame.sprite.Sprite):
         self.speedy = random.randrange(MOB_SPEED_Y_MIN, MOB_SPEED_Y_MAX)
         self.speedx = random.randrange(-MOB_SPEED_X, MOB_SPEED_X)
      
+        
+        #加入sprite group 的功能放在各个sprite初始化模块中
+        game.all_sprites_group.add(self)
+        game.all_mobs_group.add(self)
+
     
     def rotate(self):
         now = pygame.time.get_ticks()
@@ -118,6 +124,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.centerx = x
         
         self.speedy = -BULLET_SPEED
+        game.all_sprites_group.add(self)
+        game.all_bulletes_group.add(self)
 
     def update(self):
         self.rect.y += self.speedy
