@@ -3,6 +3,40 @@ import random
 import os
 from settings import *
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, game, center1, center2, exp_image_group):
+        pygame.sprite.Sprite.__init__(self)
+        self.game_handle = game
+        
+        self.exp_image_group = exp_image_group
+        
+        self.image = pygame.transform.scale(self.exp_image_group[0],(EXP_SIZE_W,EXP_SIZE_H))
+
+        self.rect = self.image.get_rect()
+        center = ((center1[0]+center2[0])/2, (center1[1]+center2[1])/2)
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = EXPLOSION_FPS
+        
+        game.all_sprites_group.add(self)
+        
+    def update(self):
+        now = pygame.time.get_ticks()
+        if  now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(self.exp_image_group):
+                self.kill()
+            else:    
+                #逐帧展示整个爆炸组图片
+                center = self.rect.center
+                self.image = pygame.transform.scale(self.exp_image_group[self.frame],(EXP_SIZE_W,EXP_SIZE_H))
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+                
+                
+        
 class Plane(pygame.sprite.Sprite):
     def __init__(self,game):
         pygame.sprite.Sprite.__init__(self)
@@ -28,8 +62,7 @@ class Plane(pygame.sprite.Sprite):
         game.all_sprites_group.add(self)
     
     def update(self):
-    
-        
+     
         self.speedx = 0
                 
         keystate = pygame.key.get_pressed()
@@ -120,6 +153,7 @@ class Bullet(pygame.sprite.Sprite):
         butllet_img = self.game_handle.bullet_img_group[0]
         self.image = pygame.transform.scale(butllet_img,(BULLET_SIZE_W,BULLET_SIZE_H))
         self.rect = self.image.get_rect()
+      
         self.rect.bottom = y
         self.rect.centerx = x
         

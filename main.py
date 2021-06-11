@@ -21,6 +21,9 @@ class Game():
         self.bg_img_group = []
         self.bullet_img_group = []
         self.plane_img_group = []
+        self.exp_img_group_1 = []
+        self.exp_img_group_2 = []
+        
         self.shoot_sound = []
         self.bg_music = []
         self.exp_sound = []
@@ -60,20 +63,23 @@ class Game():
 
         for i in PLANE_IMG:
             self.plane_img_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
-            
-        
+         
+        #加载两组爆炸图片， 分别用于子弹击落坠石和坠石击中飞机
+        for i in EXP_IMG_1:
+            self.exp_img_group_1.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+
+        for i in EXP_IMG_2:
+            self.exp_img_group_2.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+
         for i in SHOOT_SOUND:
             self.shoot_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
 
         for i in EXP_SOUND:
             self.exp_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
-            
-        
+                  
         for i in BG_MUSIC:
             self.bg_music.append(pygame.mixer.music.load(os.path.join(res_folder, i)))
             
-            
-         
         
     def draw_text(self, surf, text, size, x, y):
         font = pygame.font.Font(self.font_name, size)
@@ -105,6 +111,9 @@ class Game():
             #增加铠甲, 每次碰撞发生后，MOB需要消失(spritecollide 中设置True)，否则会持续产生碰撞，为了保证Mob的数量， 需要重新生成一个
            
             self.plane.shield -= hit.radius
+            #如果击中，则产生爆炸效果,为了使碰撞效果更加真实， 将爆炸点设在两个物体（坠石与飞机）的中间或者接触点上， 而不是坠石的中心
+            exp = Explosion(self, hit.rect.center, self.plane.rect.center, self.exp_img_group_1)
+            
             if self.plane.shield < 0:                   
                 self.quit()
                 
@@ -116,6 +125,10 @@ class Game():
             self.score += MOB_RADIUS_SIZE_MAX * 2 - hit.radius
             self.exp_sound[0].play()
             m = Mob(self)
+            #如果击中，则产生爆炸效果        
+           
+            exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2)
+            
     
     
     def draw_shield_bar(self, x, y, blood):
