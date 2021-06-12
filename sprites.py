@@ -58,18 +58,27 @@ class Plane(pygame.sprite.Sprite):
             
         self.speedx = 0
         self.shield = PLANE_SHIELD
-        
+        self.last_shoot = pygame.time.get_ticks()
+        self.shoot_time = PLANE_SHOOT_TIME
         game.all_sprites_group.add(self)
     
     def update(self):
      
         self.speedx = 0
-                
+        
+        
         keystate = pygame.key.get_pressed()
+        #长按键， 实现持续移动和自动发射
         if keystate[pygame.K_LEFT]:
             self.speedx += -PLANE_SPEED
         if keystate[pygame.K_RIGHT]:
             self.speedx += +PLANE_SPEED
+        if keystate[pygame.K_SPACE]:
+            now = pygame.time.get_ticks()
+            #控制子弹发射的频率
+            if now - self.last_shoot > self.shoot_time:
+                self.last_shoot = now
+                self.shoot()
             
         self.rect.x += self.speedx
         
