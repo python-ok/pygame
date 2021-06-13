@@ -36,7 +36,10 @@ class Game():
         self.all_bulletes_group  = 0
         self.all_bonus_group = 0
         
+        
         self.score = 0
+        
+        self.plane_lives = 1
         
         self.bg_img = random.choice(self.bg_img_group)
         self.bg_rect = self.bg_img.get_rect()
@@ -96,6 +99,14 @@ class Game():
         text_rect.midtop = (x, y)
         surf.blit(text_surf, text_rect)
     
+    def draw_plane_icons(self):
+        icon_img = pygame.transform.scale(self.plane.image.copy(),(ICON_SIZE_W,ICON_SIZE_H))
+        
+        icon_rect = icon_img.get_rect()        
+        for i in range(self.plane_lives):
+            icon_rect.right = WIDTH - 5 - ICON_SIZE_W*i
+            icon_rect.top =  5
+            self.screen.blit(icon_img, icon_rect)
     
     def quit(self):
         pygame.quit()
@@ -120,9 +131,13 @@ class Game():
             #如果击中，则产生爆炸效果,为了使碰撞效果更加真实， 将爆炸点设在两个物体（坠石与飞机）的中间或者接触点上， 而不是坠石的中心
             exp = Explosion(self, hit.rect.center, self.plane.rect.center, self.exp_img_group_1)
             
-            if self.plane.shield < 0:                   
-                self.quit()
+            if self.plane.shield < 0:   
+                self.plane_lives -= 1
                 
+                if self.plane_lives <= 0:
+                    self.quit()
+                else: #新的一条命是满血的
+                    self.plane.shield = PLANE_SHIELD
                 
             Mob(self)
 
@@ -136,7 +151,7 @@ class Game():
             exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2)
             
             if random.random() > BONUS_POSSIBILITY:
-                bonus = Bonus(self, hit.rect.center, BONUS_ADD_BLOOD)
+                bonus = Bonus(self, hit.rect.center, random.choice(BONUS_TYPE))
   
         hits = pygame.sprite.spritecollide(self.plane, self.all_bonus_group, True, pygame.sprite.collide_circle)
         for hit in hits:
@@ -160,7 +175,9 @@ class Game():
 
         self.draw_text(self.screen, str(self.score), FONT_SIZE, FONT_POS_X, FONT_POS_Y)
         self.draw_shield_bar(BAR_POS_X, BAR_POS_Y, self.plane.shield)
-
+        
+        self.draw_plane_icons()
+        
         pygame.display.flip()
         
     def run(self):

@@ -27,6 +27,10 @@ class Bonus(pygame.sprite.Sprite):
         if self.bonus_type == BONUS_ADD_BLOOD:
             self.game_handle.plane.shield = PLANE_SHIELD
             
+        if self.bonus_type == BONUS_ADD_LIVE:
+            if self.game_handle.plane_lives < PLANE_MAX_LIVES:
+                self.game_handle.plane_lives += 1
+            
     def update(self):
         self.rect.y += self.speedy
         if self.rect.bottom < 0:
