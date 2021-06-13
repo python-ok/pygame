@@ -23,6 +23,7 @@ class Game():
         self.plane_img_group = []
         self.exp_img_group_1 = []
         self.exp_img_group_2 = []
+        self.bonus_image_group = []
         
         self.shoot_sound = []
         self.bg_music = []
@@ -33,6 +34,8 @@ class Game():
         self.all_sprites_group = 0
         self.all_mobs_group  = 0
         self.all_bulletes_group  = 0
+        self.all_bonus_group = 0
+        
         self.score = 0
         
         self.bg_img = random.choice(self.bg_img_group)
@@ -43,6 +46,8 @@ class Game():
         self.all_sprites_group = pygame.sprite.Group()
         self.all_mobs_group  = pygame.sprite.Group()
         self.all_bulletes_group  = pygame.sprite.Group()
+     
+        self.all_bonus_group  = pygame.sprite.Group()
         
         
         self.plane = Plane(self)
@@ -63,6 +68,9 @@ class Game():
 
         for i in PLANE_IMG:
             self.plane_img_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+  
+        for i in BONUS_IMG:
+            self.bonus_image_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
          
         #加载两组爆炸图片， 分别用于子弹击落坠石和坠石击中飞机
         for i in EXP_IMG_1:
@@ -127,7 +135,13 @@ class Game():
            
             exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2)
             
-    
+            if random.random() > BONUS_POSSIBILITY:
+                bonus = Bonus(self, hit.rect.center, BONUS_ADD_BLOOD)
+  
+        hits = pygame.sprite.spritecollide(self.plane, self.all_bonus_group, True, pygame.sprite.collide_circle)
+        for hit in hits:
+            hit.bonus_take_effect()
+                     
     
     def draw_shield_bar(self, x, y, blood):
         if blood < 0:

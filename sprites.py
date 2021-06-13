@@ -3,6 +3,36 @@ import random
 import os
 from settings import *
 
+
+class Bonus(pygame.sprite.Sprite):
+    def __init__(self, game, center, bonus_type):
+        pygame.sprite.Sprite.__init__(self)
+        
+        self.game_handle = game
+        #不同类型的bonus（加血，加命，加导弹，加炸弹，增强火力等）
+        self.bonus_type = bonus_type
+        self.bonus_image = self.game_handle.bonus_image_group[self.bonus_type]
+        
+        self.image = pygame.transform.scale(self.bonus_image,(BONUS_SIZE_W,BONUS_SIZE_H))
+
+        self.rect = self.image.get_rect()
+       
+        self.rect.center = center
+        self.last_update = pygame.time.get_ticks()
+        self.speedy = BONUS_SPEED
+        game.all_sprites_group.add(self)
+        game.all_bonus_group.add(self)
+        
+    def bonus_take_effect(self):
+        if self.bonus_type == BONUS_ADD_BLOOD:
+            self.game_handle.plane.shield = PLANE_SHIELD
+            
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.bottom < 0:
+            self.kill()
+
+
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, game, center1, center2, exp_image_group):
         pygame.sprite.Sprite.__init__(self)
