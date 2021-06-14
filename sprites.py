@@ -30,10 +30,9 @@ class Bonus(pygame.sprite.Sprite):
         elif self.bonus_type == BONUS_ADD_LIVE:
             if self.game_handle.plane_lives < PLANE_MAX_LIVES:
                 self.game_handle.plane_lives += 1
-        elif self.bonus_type == BONUS_ADD_POWER: #额外增加两杆枪
-            
-                self.game_handle.power_start_time = pygame.time.get_ticks()
-                self.game_handle.power_account = 3
+        elif self.bonus_type == BONUS_ADD_POWER: #为战斗机额外增加两杆枪
+                self.game_handle.plane.power_start_time = pygame.time.get_ticks()
+                self.game_handle.plane.power_account = 3
                 
                 
     def update(self):
@@ -99,6 +98,10 @@ class Plane(pygame.sprite.Sprite):
         self.shield = PLANE_SHIELD
         self.last_shoot = pygame.time.get_ticks()
         self.shoot_time = PLANE_SHOOT_TIME
+        
+        self.power_account = 1
+        self.power_start_time = 0     
+        
         game.all_sprites_group.add(self)
     
     def update(self):
@@ -125,12 +128,16 @@ class Plane(pygame.sprite.Sprite):
             self.rect.right = WIDTH
         if self.rect.left < 0:
             self.rect.left = 0
-
+ 
+        if self.power_account == 3 and self.game_handle.bonus_type == BONUS_ADD_POWER:
+            if pygame.time.get_ticks() - self.power_start_time > BONUS_POWER_TIME:
+                self.power_account = 1
+ 
     
     def shoot(self):
         
         bullet = Bullet(self.rect.centerx, self.rect.top, self.game_handle)
-        if self.game_handle.power_account == 3:
+        if self.power_account == 3:
             bullet = Bullet((self.rect.centerx+self.rect.left)/2, self.rect.top, self.game_handle)
             bullet = Bullet((self.rect.centerx+self.rect.right)/2, self.rect.top, self.game_handle)
 
