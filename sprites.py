@@ -129,7 +129,8 @@ class Plane(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
  
-        if self.power_account == 3 and self.game_handle.bonus_type == BONUS_ADD_POWER:
+
+        if self.power_account == 3:
             if pygame.time.get_ticks() - self.power_start_time > BONUS_POWER_TIME:
                 self.power_account = 1
  
@@ -174,6 +175,10 @@ class Mob(pygame.sprite.Sprite):
         self.speedy = random.randrange(MOB_SPEED_Y_MIN, MOB_SPEED_Y_MAX)
         self.speedx = random.randrange(-MOB_SPEED_X, MOB_SPEED_X)
      
+        if random.random() > 0.95:
+            self.speedy = MOB_SPEED_Y_MAX * 2
+            self.speedx = 0
+    
         
         #加入sprite group 的功能放在各个sprite初始化模块中
         game.all_sprites_group.add(self)

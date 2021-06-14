@@ -31,9 +31,11 @@ MOB_ORG_POS_MIN_Y = -100
 MOB_ORG_POS_MAX_Y = -40
 MOB_SPEED_Y_MIN = 2 
 MOB_SPEED_Y_MAX = 6
-MOB_SPEED_X = 3
+MOB_SPEED_X = 1
 MOB_ROTATE_TICK = 20
 
+#流星出现的概率，垂直下坠且下坠速度极快
+MOB_SHOOTING_STAR = 0.98
 
 #各种图片
 PLANE_IMG = ['plane1.png','plane2.png','plane3.png', 'plane4.png', 'plane5.png', 'plane6.png']
