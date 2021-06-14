@@ -20,22 +20,27 @@ class Bonus(pygame.sprite.Sprite):
         self.rect.center = center
         self.last_update = pygame.time.get_ticks()
         self.speedy = BONUS_SPEED
+        
         game.all_sprites_group.add(self)
         game.all_bonus_group.add(self)
         
     def bonus_take_effect(self):
         if self.bonus_type == BONUS_ADD_BLOOD:
             self.game_handle.plane.shield = PLANE_SHIELD
-            
-        if self.bonus_type == BONUS_ADD_LIVE:
+        elif self.bonus_type == BONUS_ADD_LIVE:
             if self.game_handle.plane_lives < PLANE_MAX_LIVES:
                 self.game_handle.plane_lives += 1
+        elif self.bonus_type == BONUS_ADD_POWER: #额外增加两杆枪
             
+                self.game_handle.power_start_time = pygame.time.get_ticks()
+                self.game_handle.power_account = 3
+                
+                
     def update(self):
         self.rect.y += self.speedy
         if self.rect.bottom < 0:
             self.kill()
-
+        
 
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, game, center1, center2, exp_image_group):
@@ -123,7 +128,12 @@ class Plane(pygame.sprite.Sprite):
 
     
     def shoot(self):
+        
         bullet = Bullet(self.rect.centerx, self.rect.top, self.game_handle)
+        if self.game_handle.power_account == 3:
+            bullet = Bullet((self.rect.centerx+self.rect.left)/2, self.rect.top, self.game_handle)
+            bullet = Bullet((self.rect.centerx+self.rect.right)/2, self.rect.top, self.game_handle)
+
        # self.game_handle.all_sprites_group.add(bullet)
        # self.game_handle.all_bulletes_group.add(bullet)
                 

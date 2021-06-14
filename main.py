@@ -36,10 +36,12 @@ class Game():
         self.all_bulletes_group  = 0
         self.all_bonus_group = 0
         
-        
+        self.bonus_type = -1
         self.score = 0
-        
+        #缺省一条命， 一杆枪
         self.plane_lives = 1
+        self.power_account = 1
+        self.power_start_time = 0
         
         self.bg_img = random.choice(self.bg_img_group)
         self.bg_rect = self.bg_img.get_rect()
@@ -151,12 +153,17 @@ class Game():
             exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2)
             
             if random.random() > BONUS_POSSIBILITY:
-                bonus = Bonus(self, hit.rect.center, random.choice(BONUS_TYPE))
+                self.bonus_type = random.choice(BONUS_TYPE)
+                bonus = Bonus(self, hit.rect.center, self.bonus_type)
   
         hits = pygame.sprite.spritecollide(self.plane, self.all_bonus_group, True, pygame.sprite.collide_circle)
         for hit in hits:
             hit.bonus_take_effect()
-                     
+        
+        #这个无法放到bonus的update方法， 因为bonus对象会被kill掉
+        if self.bonus_type == BONUS_ADD_POWER and self.power_account == 3:
+            if pygame.time.get_ticks() - self.power_start_time > BONUS_POWER_TIME:
+                self.power_account = 1
     
     def draw_shield_bar(self, x, y, blood):
         if blood < 0:
