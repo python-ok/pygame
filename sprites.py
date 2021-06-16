@@ -42,13 +42,18 @@ class Bonus(pygame.sprite.Sprite):
         
 
 class Explosion(pygame.sprite.Sprite):
-    def __init__(self, game, center1, center2, exp_image_group):
+#发生爆炸的两个物体，爆炸图片， 爆炸尺寸
+    def __init__(self, game, center1, center2, exp_image_group,rect):
         pygame.sprite.Sprite.__init__(self)
         self.game_handle = game
         
         self.exp_image_group = exp_image_group
         
-        self.image = pygame.transform.scale(self.exp_image_group[0],(EXP_SIZE_W,EXP_SIZE_H))
+ 
+        self.tmp_image_w = rect.right - rect.left
+        self.tmp_image_h = rect.bottom - rect.top
+        
+        self.image = pygame.transform.scale(self.exp_image_group[0],(self.tmp_image_w,self.tmp_image_h))
 
         self.rect = self.image.get_rect()
         center = ((center1[0]+center2[0])/2, (center1[1]+center2[1])/2)
@@ -68,8 +73,8 @@ class Explosion(pygame.sprite.Sprite):
                 self.kill()
             else:    
                 #逐帧展示整个爆炸组图片
-                center = self.rect.center
-                self.image = pygame.transform.scale(self.exp_image_group[self.frame],(EXP_SIZE_W,EXP_SIZE_H))
+                center = self.rect.center       
+                self.image = pygame.transform.scale(self.exp_image_group[self.frame],(self.tmp_image_w,self.tmp_image_h))
                 self.rect = self.image.get_rect()
                 self.rect.center = center
                 
@@ -141,9 +146,6 @@ class Plane(pygame.sprite.Sprite):
         if self.power_account == 3:
             bullet = Bullet((self.rect.centerx+self.rect.left)/2, self.rect.top, self.game_handle)
             bullet = Bullet((self.rect.centerx+self.rect.right)/2, self.rect.top, self.game_handle)
-
-       # self.game_handle.all_sprites_group.add(bullet)
-       # self.game_handle.all_bulletes_group.add(bullet)
                 
         self.game_handle.shoot_sound[0].play()
     
@@ -159,7 +161,8 @@ class Mob(pygame.sprite.Sprite):
         self.org_image = pygame.transform.scale(Mod_img,(size,size))
         self.image = self.org_image.copy()
         self.rect = self.image.get_rect()
-        
+        #为了区分超级怪物
+        self.type = "common"
 
         self.rot = 0
         self.rot_speed = random.randrange(-MOB_ROTATE_SPEED, +MOB_ROTATE_SPEED)
@@ -209,6 +212,39 @@ class Mob(pygame.sprite.Sprite):
             self.rect.y = random.randrange(MOB_ORG_POS_MIN_Y,MOB_ORG_POS_MAX_Y)
             self.speedy = random.randrange(MOB_SPEED_Y_MIN, MOB_SPEED_Y_MAX)
     
+class Super_Mob(pygame.sprite.Sprite):
+    def __init__(self,game):
+    
+        pygame.sprite.Sprite.__init__(self)    
+        self.game_handle = game
+        
+        Mod_img = random.choice(self.game_handle.super_mob_img_group)
+        self.image = pygame.transform.scale(Mod_img,(SUPER_MOB_RADIUS_SIZE_W,SUPER_MOB_RADIUS_SIZE_H))
+        self.rect = self.image.get_rect()
+        self.type = "super"
+        self.shield = SUPER_MOB_SHIELD
+        self.speedy = SUPER_MOB_SPEED
+        
+        self.last_update = pygame.time.get_ticks()
+        
+        self.radius = int(self.rect.width/2) 
+        #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
+        
+        self.rect.centerx = WIDTH/2
+        self.rect.bottom = random.randrange(MOB_ORG_POS_MIN_Y,MOB_ORG_POS_MAX_Y)
+                
+        
+        #加入sprite group 的功能放在各个sprite初始化模块中
+        game.all_sprites_group.add(self)
+        game.all_super_mobs_group.add(self)
+
+    
+    def update(self):
+    
+        self.rect.y += self.speedy
+                
+        if self.rect.top > HEIGHT+10:
+            self.kill()
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y,game): 

@@ -46,6 +46,15 @@ EXP_IMG_1 = ['ex1.png','ex2.png','ex3.png','ex4.png','ex5.png','ex6.png','ex7.pn
 EXP_IMG_2 = ['exx1.png','exx2.png','exx3.png','exx4.png','exx5.png','exx6.png','exx7.png','exx8.png','exx9.png','exx10.png','exx11.png']
 EXP_IMG_3 = ['exy01_01.png','exy01_02.png','exy01_03.png','exy01_04.png','exy01_05.png','exy01_06.png','exy01_07.png','exy01_08.png']
 
+EXP_IMG_4 = ['explosionFull_01.png','explosionFull_02.png','explosionFull_03.png','explosionFull_04.png','explosionFull_05.png','explosionFull_06.png', \
+             'explosionFull_07.png','explosionFull_08.png','explosionFull_09.png','explosionFull_10.png','explosionFull_11.png','explosionFull_12.png',\
+             'explosionFull_13.png','explosionFull_14.png','explosionFull_15.png','explosionFull_16.png','explosionFull_17.png','explosionFull_18.png',\
+             'explosionFull_19.png','explosionFull_20.png','explosionFull_21.png','explosionFull_22.png','explosionFull_23.png','explosionFull_24.png', \
+             'explosionFull_25.png','explosionFull_26.png','explosionFull_27.png','explosionFull_28.png','explosionFull_29.png','explosionFull_30.png', \
+             'explosionFull_31.png','explosionFull_32.png']
+
+SUPER_MOB_IMG = ['super_mob1.png']
+
 #声音和音乐
 EXP_SOUND = ['exp.wav'] 
 BG_MUSIC = ['game.wav'] 
@@ -75,8 +84,7 @@ BAR_POS_Y = 5
 
 #爆炸的FPS和爆炸图片展示尺寸
 EXPLOSION_FPS = 50
-EXP_SIZE_W = 50
-EXP_SIZE_H = 50
+
 
 BONUS_ADD_BLOOD = 0
 BONUS_ADD_LIVE = 1
@@ -95,5 +103,14 @@ BONUS_POWER_TIME = 10000
 PLANE_MAX_LIVES = 3
 ICON_SIZE_W = 40
 ICON_SIZE_H = 30
+
+
+SUPER_MOB_RADIUS_SIZE_W = int(WIDTH / 2)
+SUPER_MOB_RADIUS_SIZE_H = int(HEIGHT / 2)
+SUPER_MOB_SHIELD = 200
+SUPER_MOB_SPEED = 1
+SUPER_MOB_SCORE = 50000
+SUPER_MOB_TIME = 30000
+BULLETE_DAMAGE = 5
 
 

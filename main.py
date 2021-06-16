@@ -23,8 +23,10 @@ class Game():
         self.plane_img_group = []
         self.exp_img_group_1 = []
         self.exp_img_group_2 = []
+        self.exp_img_group_4 = []
         self.bonus_image_group = []
-        
+        self.super_mob_img_group = []
+        self.super_mob_last_occur = 0
         self.shoot_sound = []
         self.bg_music = []
         self.exp_sound = []
@@ -35,13 +37,13 @@ class Game():
         self.all_mobs_group  = 0
         self.all_bulletes_group  = 0
         self.all_bonus_group = 0
+        self.all_super_mobs_group = 0
         
         self.bonus_type = -1
         self.score = 0
         #缺省一条命， 一杆枪
         self.plane_lives = 1
-        self.power_account = 1
-        self.power_start_time = 0
+   
         
         self.bg_img = random.choice(self.bg_img_group)
         self.bg_rect = self.bg_img.get_rect()
@@ -54,7 +56,7 @@ class Game():
      
         self.all_bonus_group  = pygame.sprite.Group()
         
-        
+        self.all_super_mobs_group = pygame.sprite.Group()
         self.plane = Plane(self)
         
         for i in range(MOB_COUNT):
@@ -76,6 +78,11 @@ class Game():
   
         for i in BONUS_IMG:
             self.bonus_image_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+        
+        for i in SUPER_MOB_IMG:
+            self.super_mob_img_group.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+                
+        
          
         #加载两组爆炸图片， 分别用于子弹击落坠石和坠石击中飞机
         for i in EXP_IMG_1:
@@ -83,6 +90,10 @@ class Game():
 
         for i in EXP_IMG_2:
             self.exp_img_group_2.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+
+        for i in EXP_IMG_4:
+            self.exp_img_group_4.append(pygame.image.load(os.path.join(res_folder, i)).convert_alpha())
+
 
         for i in SHOOT_SOUND:
             self.shoot_sound.append(pygame.mixer.Sound(os.path.join(res_folder, i)))
@@ -131,8 +142,8 @@ class Game():
            
             self.plane.shield -= hit.radius
             #如果击中，则产生爆炸效果,为了使碰撞效果更加真实， 将爆炸点设在两个物体（坠石与飞机）的中间或者接触点上， 而不是坠石的中心
-            exp = Explosion(self, hit.rect.center, self.plane.rect.center, self.exp_img_group_1)
-            
+            exp = Explosion(self, hit.rect.center, self.plane.rect.center, self.exp_img_group_1,hit.rect)
+                        
             if self.plane.shield < 0:   
                 self.plane_lives -= 1
                 
@@ -145,13 +156,12 @@ class Game():
 
         hits = pygame.sprite.groupcollide(self.all_mobs_group, self.all_bulletes_group, True, True)
         for hit in hits:
-            self.score += MOB_RADIUS_SIZE_MAX * 2 - hit.radius
             self.exp_sound[0].play()
+         
+            self.score += MOB_RADIUS_SIZE_MAX * 2 - hit.radius
             m = Mob(self)
             #如果击中，则产生爆炸效果        
-           
-            exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2)
-            
+            exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2,hit.rect)
             if random.random() > BONUS_POSSIBILITY:
                 self.bonus_type = random.choice(BONUS_TYPE)
                 bonus = Bonus(self, hit.rect.center, self.bonus_type)
@@ -160,10 +170,25 @@ class Game():
         for hit in hits:
             hit.bonus_take_effect()
         
-        #这个无法放到bonus的update方法， 因为bonus对象会被kill掉
-        if self.bonus_type == BONUS_ADD_POWER and self.power_account == 3:
-            if pygame.time.get_ticks() - self.power_start_time > BONUS_POWER_TIME:
-                self.power_account = 1
+        
+        #击中super mob
+        hits = pygame.sprite.groupcollide(self.all_super_mobs_group, self.all_bulletes_group, False, True)
+        for hit in hits:
+            self.exp_sound[0].play()
+            if hit.type == "super":
+                hit.shield -= BULLETE_DAMAGE
+                if hit.shield <= 0:
+                    self.score += SUPER_MOB_SCORE
+                    Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_4,hit.rect)
+                    hit.kill()
+                    
+        
+        
+        #每隔一段时间出现Super Mob
+        now = pygame.time.get_ticks()            
+        if now - self.super_mob_last_occur >= SUPER_MOB_TIME:
+            self.super_mob_last_occur = now
+            Super_Mob(self)
     
     def draw_shield_bar(self, x, y, blood):
         if blood < 0:
