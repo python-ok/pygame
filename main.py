@@ -136,12 +136,10 @@ class Game():
     def update(self):
         self.all_sprites_group.update()
     
+        #飞机是否与坠石碰撞
         hits = pygame.sprite.spritecollide(self.plane, self.all_mobs_group, True, pygame.sprite.collide_circle)
-        for hit in hits:
-            #增加铠甲, 每次碰撞发生后，MOB需要消失(spritecollide 中设置True)，否则会持续产生碰撞，为了保证Mob的数量， 需要重新生成一个
-           
+        for hit in hits:           
             self.plane.shield -= hit.radius
-            #如果击中，则产生爆炸效果,为了使碰撞效果更加真实， 将爆炸点设在两个物体（坠石与飞机）的中间或者接触点上， 而不是坠石的中心
             exp = Explosion(self, hit.rect.center, self.plane.rect.center, self.exp_img_group_1,hit.rect)
                         
             if self.plane.shield < 0:   
@@ -151,37 +149,35 @@ class Game():
                     self.quit()
                 else: #新的一条命是满血的
                     self.plane.shield = PLANE_SHIELD
-                
-            Mob(self)
-
-        hits = pygame.sprite.groupcollide(self.all_mobs_group, self.all_bulletes_group, True, True)
-        for hit in hits:
-            self.exp_sound[0].play()
-         
-            self.score += MOB_RADIUS_SIZE_MAX * 2 - hit.radius
-            m = Mob(self)
-            #如果击中，则产生爆炸效果        
-            exp = Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2,hit.rect)
-            if random.random() > BONUS_POSSIBILITY:
-                self.bonus_type = random.choice(BONUS_TYPE)
-                bonus = Bonus(self, hit.rect.center, self.bonus_type)
+            if hit.type == "common":
+                Mob(self)
+      
   
         hits = pygame.sprite.spritecollide(self.plane, self.all_bonus_group, True, pygame.sprite.collide_circle)
         for hit in hits:
             hit.bonus_take_effect()
         
         
-        #击中super mob
-        hits = pygame.sprite.groupcollide(self.all_super_mobs_group, self.all_bulletes_group, False, True)
+        #合并Mob与super mob 处理
+        hits = pygame.sprite.groupcollide(self.all_mobs_group, self.all_bulletes_group, False, True)
         for hit in hits:
             self.exp_sound[0].play()
-            if hit.type == "super":
-                hit.shield -= BULLETE_DAMAGE
-                if hit.shield <= 0:
-                    self.score += SUPER_MOB_SCORE
+            
+            hit.shield -= BULLETE_DAMAGE
+            if hit.shield <= 0:
+                self.score += SUPER_MOB_SCORE
+                if hit.type == "super":
                     Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_4,hit.rect)
-                    hit.kill()
+                else:
+                    Explosion(self, hit.rect.center, hit.rect.center, self.exp_img_group_2,hit.rect)
                     
+                hit.kill()
+                if hit.type == "common":
+                    Mob(self)
+                 
+                if random.random() > BONUS_POSSIBILITY:
+                    self.bonus_type = random.choice(BONUS_TYPE)
+                    bonus = Bonus(self, hit.rect.center, self.bonus_type)
         
         
         #每隔一段时间出现Super Mob

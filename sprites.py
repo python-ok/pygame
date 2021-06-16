@@ -168,7 +168,7 @@ class Mob(pygame.sprite.Sprite):
         self.rot_speed = random.randrange(-MOB_ROTATE_SPEED, +MOB_ROTATE_SPEED)
 
         self.last_update = pygame.time.get_ticks()
-
+        self.shield = 1
         
         self.radius = int(self.rect.width/2) 
         #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
@@ -236,6 +236,7 @@ class Super_Mob(pygame.sprite.Sprite):
         
         #加入sprite group 的功能放在各个sprite初始化模块中
         game.all_sprites_group.add(self)
+        game.all_mobs_group.add(self)
         game.all_super_mobs_group.add(self)
 
     
